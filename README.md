@@ -27,12 +27,13 @@ Ya da `index.html` dosyasını doğrudan tarayıcıda aç.
 
 Her şey `plan.js` içinde:
 
-- `GYM` — hareketler. `img` alanı, görselin
-  [free-exercise-db](https://github.com/yuhonas/free-exercise-db) içindeki klasör
-  adıdır. Yeni hareket eklerken o depodaki klasör adını yaz.
+- `GYM` — hareketler. `img` alanı, animasyonun
+  [ExerciseGymGifsDB](https://github.com/JahelCuadrado/ExerciseGymGifsDB)
+  içindeki yoludur (`kas/hareket-adi`). Tüm liste:
+  `https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/api/en/exercises.json`
 - `WEEK` — günler ve o günün hareket sırası, set/tekrar bilgisi.
 - `FINISHER` — antrenman sonu ek çalışma.
 
-Görseller jsDelivr üzerinden çekilir; her hareketin başlangıç ve bitiş karesi
-sırayla gösterilerek hareket canlandırılır. Bir kare yüklenemezse hareketin baş
-harfleri görünür, sayfa bozulmaz.
+Animasyonlar jsDelivr üzerinden çekilir. Bir GIF yüklenemezse hareketin baş
+harfleri görünür, sayfa bozulmaz. Telefonda hareket kısıtlaması açıksa GIF
+yerine duragan kare gösterilir.
