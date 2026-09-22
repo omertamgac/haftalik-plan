@@ -311,17 +311,17 @@ a { color: inherit; }
 
 .tag.is-fail { color: #e8a6a0; border-color: #4a2e2c; }
 
-/* Hareket gorseli: iki kare arasinda gecis yaparak hareketi gosterir */
+/* Hareket animasyonu. Acik zeminli cizimler, koyu sayfada anatomi levhasi gibi. */
 
 .shot {
   position: relative;
   flex: none;
-  width: 108px;
-  aspect-ratio: 3 / 2;
+  width: 96px;
+  aspect-ratio: 1;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: 8px;
-  background: #0f1216;
+  background: #f2f3f4;
   overflow: hidden;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -332,19 +332,16 @@ a { color: inherit; }
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
-.shot img.b { animation: swap 2.4s ease-in-out infinite; }
-
-@keyframes swap {
-  0%, 40%   { opacity: 0; }
-  50%, 90%  { opacity: 1; }
-  100%      { opacity: 0; }
+.shot.is-missing {
+  display: grid;
+  place-items: center;
+  background: #0f1216;
+  border: 1px solid var(--line);
 }
-
-.shot.is-missing { display: grid; place-items: center; }
 
 .shot.is-missing::after {
   content: attr(data-initials);
@@ -386,7 +383,7 @@ a { color: inherit; }
 
 .ss-item + .ss-item { margin-top: 12px; }
 
-.ss-item .shot { width: 88px; }
+.ss-item .shot { width: 84px; }
 
 /* Ek calisma */
 
@@ -405,7 +402,7 @@ a { color: inherit; }
 
 .finisher .row { grid-template-columns: 1fr auto; padding: 14px 0; }
 .finisher .row:last-child { border-bottom: 0; }
-.finisher .row .shot { width: 88px; }
+.finisher .row .shot { width: 84px; }
 
 /* ---------- Buyutme ---------- */
 
@@ -427,7 +424,10 @@ a { color: inherit; }
 
 .zoom-body .shot {
   width: 100%;
-  aspect-ratio: 3 / 2;
+  max-width: 420px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  display: block;
   border-radius: var(--radius);
   cursor: default;
 }
@@ -462,11 +462,10 @@ a { color: inherit; }
   body { max-width: 760px; margin: 0 auto; }
   .week { grid-template-columns: repeat(4, 1fr); }
   .day-card:last-child { grid-column: span 4; }
-  .shot { width: 156px; }
-  .ss-item .shot, .finisher .row .shot { width: 130px; }
+  .shot { width: 130px; }
+  .ss-item .shot, .finisher .row .shot { width: 112px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shot img.b { animation: none; opacity: 0; }
   * { transition: none !important; }
 }

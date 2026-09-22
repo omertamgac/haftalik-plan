@@ -1,6 +1,9 @@
 /* Haftalık plan — görünüm kurulumu ve hash yönlendirmesi. */
 
-const CDN = "https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/";
+const CDN = "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/";
+
+/* Hareket kisitlamasi acikken animasyon yerine duragan kare gosterilir. */
+const STILL = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const el = (tag, cls, text) => {
   const node = document.createElement(tag);
@@ -18,23 +21,20 @@ const moveCount = (day) =>
 const initials = (name) =>
   name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
-/* Hareketin iki karesi üst üste durur; ikincisi yavaşça belirip kaybolarak
-   hareketi gösterir. Kareler yüklenemezse baş harfler kalır. */
+/* Hareketi gösteren animasyon. Yüklenemezse baş harfler kalır. */
 function shot(ex, eager, item) {
   const box = el("button", "shot");
   box.type = "button";
   box.dataset.initials = initials(ex.name);
   box.setAttribute("aria-label", ex.name + " — büyüt");
 
-  ["0", "1"].forEach((frame, i) => {
-    const img = el("img", i ? "b" : "a");
-    img.src = CDN + ex.img + "/" + frame + ".jpg";
-    img.alt = i ? "" : ex.name;
-    img.loading = eager ? "eager" : "lazy";
-    img.decoding = "async";
-    img.addEventListener("error", () => box.classList.add("is-missing"));
-    box.appendChild(img);
-  });
+  const img = el("img");
+  img.src = CDN + ex.img + (STILL ? ".thumb.webp" : ".gif");
+  img.alt = ex.name;
+  img.loading = eager ? "eager" : "lazy";
+  img.decoding = "async";
+  img.addEventListener("error", () => box.classList.add("is-missing"));
+  box.appendChild(img);
 
   box.addEventListener("click", () => openZoom(ex, item));
   return box;
