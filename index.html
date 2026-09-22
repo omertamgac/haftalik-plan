@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Haftalık Plan</title>
+<meta name="theme-color" content="#15181C">
+<meta name="description" content="Haftalık antrenman planı ve hareket görselleri.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main id="app">
+  <!-- Hafta görünümü -->
+  <section class="view" id="view-week">
+    <header class="masthead">
+      <h1>Haftalık plan</h1>
+      <p class="today-line" id="today-line"></p>
+    </header>
+    <div class="week" id="week"></div>
+    <footer class="colophon">
+      <p>Hareket görselleri <a href="https://github.com/yuhonas/free-exercise-db">free-exercise-db</a> (CC0).</p>
+    </footer>
+  </section>
+
+  <!-- Gün görünümü -->
+  <section class="view" id="view-day" hidden>
+    <header class="dayhead" id="dayhead">
+      <a class="back" href="#" aria-label="Haftaya dön">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <div class="dayhead-text">
+        <h2 id="day-title"></h2>
+        <p id="day-focus"></p>
+      </div>
+      <p class="dayhead-count" id="day-count"></p>
+    </header>
+    <ol class="work" id="work"></ol>
+    <section class="finisher" id="finisher"></section>
+  </section>
+</main>
+
+<!-- Büyütülmüş hareket -->
+<dialog id="zoom">
+  <button class="zoom-close" aria-label="Kapat">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <div class="zoom-body" id="zoom-body"></div>
+</dialog>
+
+<script src="plan.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
