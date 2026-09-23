@@ -23,6 +23,23 @@ Ya da `index.html` dosyasını doğrudan tarayıcıda aç.
 
 Ücretsiz GitHub hesaplarında Pages yalnızca public depolarda çalışır.
 
+## Ağırlık kaydı ve notlar
+
+Her hareketin altında bir kg kutusu ve kısa bir not alanı var. Yazıp alandan
+çıkınca kendiliğinden kaydedilir, altta son güncelleme tarihi görünür.
+
+Kayıt **harekete** bağlıdır, güne değil: aynı hareket başka bir günde de
+geçiyorsa orada da aynı ağırlığı görürsün. Kutuları boşaltmak kaydı siler.
+
+**Veri nerede duruyor:** yalnızca o tarayıcının `localStorage` alanında
+(`plan.log.v1` anahtarı). Site tamamen statik olduğu için ağırlıkların GitHub
+deposuna ya da herhangi bir sunucuya gitmez. Bunun anlamı:
+
+- Telefonda girdiğin ağırlık bilgisayarda görünmez, tersi de geçerli.
+- Tarayıcı verilerini temizlersen kayıtlar silinir.
+- Gizli sekmede depolama kapalıysa alan "kaydedilemedi" der, site çalışmaya
+  devam eder.
+
 ## Planı değiştirmek
 
 Her şey `plan.js` içinde:

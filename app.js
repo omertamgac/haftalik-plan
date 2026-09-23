@@ -134,6 +134,7 @@ function renderDay(day) {
         text.appendChild(el("p", "row-tr", ex.tr));
         pair.appendChild(text);
         pair.appendChild(shot(ex, eager, { sets: item.sets, tag: item.tag }));
+        pair.appendChild(logField(ex));
         group.appendChild(pair);
       });
 
@@ -142,6 +143,7 @@ function renderDay(day) {
       row.appendChild(el("span", "idx", ++position + ""));
       row.appendChild(textBlock(item.ex, item));
       row.appendChild(shot(item.ex, eager, item));
+      row.appendChild(logField(item.ex));
     }
 
     list.appendChild(row);
@@ -154,6 +156,7 @@ function renderDay(day) {
     const row = el("li", "row");
     row.appendChild(textBlock(item.ex, item));
     row.appendChild(shot(item.ex, false, item));
+    row.appendChild(logField(item.ex));
     extraList.appendChild(row);
   });
   extra.appendChild(extraList);
