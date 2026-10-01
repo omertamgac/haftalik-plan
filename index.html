@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Haftalık Plan</title>
+<title>Antrenman Döngüsü</title>
 <meta name="theme-color" content="#15181C">
-<meta name="description" content="Haftalık antrenman planı ve hareket görselleri.">
+<meta name="description" content="3 günlük antrenman döngüsü: ağırlık, kardiyo, dinlenme.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -18,13 +18,17 @@
 <body>
 
 <main id="app">
-  <!-- Hafta görünümü -->
+  <!-- Döngü görünümü -->
   <section class="view" id="view-week">
     <header class="masthead">
-      <h1>Haftalık plan</h1>
+      <h1>3 günlük döngü</h1>
       <p class="today-line" id="today-line"></p>
     </header>
     <div class="week" id="week"></div>
+    <div class="cycle-set">
+      <p>Bugün döngünün kaçıncı günü?</p>
+      <div class="cycle-pick" id="cycle-pick"></div>
+    </div>
     <footer class="colophon">
       <p>Hareket animasyonları <a href="https://github.com/JahelCuadrado/ExerciseGymGifsDB">ExerciseGymGifsDB</a>.</p>
     </footer>
@@ -33,7 +37,7 @@
   <!-- Gün görünümü -->
   <section class="view" id="view-day" hidden>
     <header class="dayhead" id="dayhead">
-      <a class="back" href="#" aria-label="Haftaya dön">
+      <a class="back" href="#" aria-label="Döngüye dön">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <div class="dayhead-text">
@@ -42,8 +46,9 @@
       </div>
       <p class="dayhead-count" id="day-count"></p>
     </header>
+    <section class="notes" id="notes" hidden></section>
     <ol class="work" id="work"></ol>
-    <section class="finisher" id="finisher"></section>
+    <section class="finisher" id="finisher" hidden></section>
   </section>
 </main>
 

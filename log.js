@@ -1,4 +1,4 @@
-/* Son kaldirilan agirlik ve not.
+/* Son kaldirilan agirlik (kardiyoda hiz ya da seviye) ve not.
    Kayit cihazin tarayicisinda (localStorage) durur, sunucuya ya da repoya gitmez. */
 
 const LOG_KEY = "plan.log.v1";
@@ -48,6 +48,7 @@ function syncFields(key, entry) {
 
 function logField(ex) {
   const entry = readLog()[ex.img] || {};
+  const unit = ex.unit || "kg";
 
   const box = el("div", "log");
   box.dataset.ex = ex.img;
@@ -59,7 +60,7 @@ function logField(ex) {
   kg.min = "0";
   kg.placeholder = "—";
   kg.value = entry.kg || "";
-  kg.setAttribute("aria-label", ex.name + " — son kaldırılan ağırlık, kg");
+  kg.setAttribute("aria-label", ex.name + " — son değer, " + unit);
 
   const note = el("input", "log-note");
   note.type = "text";
@@ -71,7 +72,7 @@ function logField(ex) {
   const stamp = el("p", "log-stamp", stampText(entry.at));
 
   const line = el("div", "log-line");
-  line.append(kg, el("span", "log-unit", "kg"), note);
+  line.append(kg, el("span", "log-unit", unit), note);
   box.append(line, stamp);
 
   const save = () => {

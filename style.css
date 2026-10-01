@@ -309,8 +309,6 @@ a { color: inherit; }
   white-space: nowrap;
 }
 
-.tag.is-fail { color: #e8a6a0; border-color: #4a2e2c; }
-
 /* Hareket animasyonu. Acik zeminli cizimler, koyu sayfada anatomi levhasi gibi. */
 
 .shot {
@@ -352,39 +350,6 @@ a { color: inherit; }
 
 .shot.is-missing img { display: none; }
 
-/* Superset */
-
-.row.is-ss { grid-template-columns: 22px 1fr; }
-
-.ss-group {
-  border-left: 1px solid var(--line);
-  padding-left: 12px;
-}
-
-.ss-label {
-  margin: 0 0 10px;
-  font-size: 12px;
-  color: var(--dim);
-}
-
-.ss-label b {
-  color: var(--chalk);
-  font-variation-settings: "wdth" 108, "wght" 700;
-  font-variant-numeric: tabular-nums;
-  font-size: 15px;
-}
-
-.ss-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px;
-  align-items: start;
-}
-
-.ss-item + .ss-item { margin-top: 12px; }
-
-.ss-item .shot { width: 84px; }
-
 /* Ek calisma */
 
 .finisher {
@@ -404,6 +369,150 @@ a { color: inherit; }
 .finisher .row:last-child { border-bottom: 0; }
 .finisher .row .shot { width: 84px; }
 
+/* Nasil yapilir */
+
+.row > .howto { grid-column: 2 / -1; }
+
+.howto { margin-top: 12px; }
+
+.howto summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 0;
+  font-size: 13px;
+  color: var(--dim);
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.howto summary::-webkit-details-marker { display: none; }
+
+.howto summary::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 120ms ease;
+}
+
+.howto[open] summary::before { transform: rotate(45deg); }
+
+.howto[open] summary { color: var(--chalk); }
+
+.guide {
+  padding: 4px 0 2px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.guide h4 {
+  margin: 10px 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--plate, var(--dim));
+  font-variation-settings: "wdth" 100, "wght" 600;
+}
+
+.guide h4.is-warn { color: #e3ae23; }
+
+.guide ol,
+.guide ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #c9cfd5;
+}
+
+.guide li + li { margin-top: 5px; }
+
+.guide ol li::marker {
+  color: var(--dimmer);
+  font-variant-numeric: tabular-nums;
+}
+
+.guide ul li::marker { color: #e3ae23; }
+
+.zoom-body .guide {
+  margin-top: 14px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+/* Gun notlari */
+
+.notes {
+  margin: 16px 0 4px;
+  padding: 14px 16px;
+  background: var(--slab);
+  border-left: 3px solid var(--plate, var(--dim));
+  border-radius: var(--radius);
+}
+
+.notes h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--dim);
+  font-variation-settings: "wdth" 100, "wght" 600;
+}
+
+.notes ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #c9cfd5;
+}
+
+.notes li + li { margin-top: 6px; }
+
+/* Bugun kacinci gun secimi */
+
+.cycle-set {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.cycle-set p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--dim);
+}
+
+.cycle-pick {
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
+
+.cycle-pick button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--dim);
+  font: inherit;
+  font-size: 15px;
+  font-variation-settings: "wdth" 100, "wght" 600;
+  cursor: pointer;
+}
+
+.cycle-pick button[aria-pressed="true"] {
+  background: var(--chalk);
+  border-color: var(--chalk);
+  color: var(--iron);
+}
+
 /* ---------- Buyutme ---------- */
 
 #zoom {
@@ -411,16 +520,17 @@ a { color: inherit; }
   max-width: 100vw;
   max-height: 100dvh;
   margin: auto;
-  padding: 0;
+  padding: calc(60px + env(safe-area-inset-top)) 0 0;
   border: 0;
   background: transparent;
   color: var(--chalk);
-  overflow: visible;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 #zoom::backdrop { background: rgba(8, 10, 12, 0.92); }
 
-.zoom-body { padding: 0 var(--gutter); }
+.zoom-body { padding: 0 var(--gutter) 24px; }
 
 .zoom-body .shot {
   width: 100%;
@@ -461,7 +571,7 @@ a { color: inherit; }
 /* Kayit alani satirin tam genisligine yayilir: metin ve gorselin altinda durur. */
 .row > .log { grid-column: 2 / -1; }
 .finisher .row > .log,
-.ss-item > .log { grid-column: 1 / -1; }
+.finisher .row > .howto { grid-column: 1 / -1; }
 
 .log { margin-top: 12px; }
 
@@ -537,10 +647,18 @@ a { color: inherit; }
 
 @media (min-width: 720px) {
   body { max-width: 760px; margin: 0 auto; }
-  .week { grid-template-columns: repeat(4, 1fr); }
-  .day-card:last-child { grid-column: span 4; }
+  .week { grid-template-columns: repeat(3, 1fr); }
+  .day-card:last-child {
+    grid-column: auto;
+    aspect-ratio: 1;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-end;
+    gap: 0;
+  }
+  .day-card:last-child .card-meta { margin-top: 10px; }
   .shot { width: 130px; }
-  .ss-item .shot, .finisher .row .shot { width: 112px; }
+  .finisher .row .shot { width: 112px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

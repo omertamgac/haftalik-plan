@@ -1,4 +1,4 @@
-/* Haftalık plan — görünüm kurulumu ve hash yönlendirmesi. */
+/* 3 günlük döngü — görünüm kurulumu ve hash yönlendirmesi. */
 
 const CDN = "https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@main/";
 
@@ -15,11 +15,48 @@ const el = (tag, cls, text) => {
 const setCount = (day) =>
   day.work.reduce((total, item) => total + parseInt(item.sets, 10), 0);
 
-const moveCount = (day) =>
-  day.work.reduce((total, item) => total + (item.superset ? item.superset.length : 1), 0);
+const dayMeta = (day) =>
+  day.meta || day.work.length + " hareket · " + setCount(day) + " set";
 
 const initials = (name) =>
   name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
+/* ---------- Döngü ---------- */
+
+/* Döngünün başladığı gün bu tarayıcıda saklanır; yoksa plan.js'deki tarih geçerli. */
+const CYCLE_KEY = "plan.cycle.v1";
+
+const dayNumber = (stamp) => {
+  const [y, m, d] = stamp.split("-").map(Number);
+  return Date.UTC(y, m - 1, d) / 86400000;
+};
+
+function cycleStart() {
+  try {
+    return localStorage.getItem(CYCLE_KEY) || CYCLE_START;
+  } catch {
+    return CYCLE_START;
+  }
+}
+
+function todayIndex() {
+  const diff = dayNumber(todayStamp()) - dayNumber(cycleStart());
+  return ((diff % CYCLE.length) + CYCLE.length) % CYCLE.length;
+}
+
+/* "Bugün n. gün" seçilince başlangıç tarihi bugünden n-1 gün geriye çekilir. */
+function setToday(index) {
+  const start = new Date((dayNumber(todayStamp()) - index) * 86400000);
+  const stamp = start.toISOString().slice(0, 10);
+  try {
+    localStorage.setItem(CYCLE_KEY, stamp);
+  } catch {
+    /* Depolama kapaliysa secim yalnizca bu oturumda gecerli olmaz; varsayilan kalir. */
+  }
+  renderWeek();
+}
+
+/* ---------- Parçalar ---------- */
 
 /* Hareketi gösteren animasyon. Yüklenemezse baş harfler kalır. */
 function shot(ex, eager, item) {
@@ -43,11 +80,7 @@ function shot(ex, eager, item) {
 function presentation(item) {
   const line = el("p", "pres");
   line.appendChild(el("span", "sets", item.sets));
-  if (item.tag) {
-    const tag = el("span", "tag", item.tag);
-    if (item.tag.includes("Failure")) tag.classList.add("is-fail");
-    line.appendChild(tag);
-  }
+  if (item.tag) line.appendChild(el("span", "tag", item.tag));
   return line;
 }
 
@@ -59,31 +92,64 @@ function textBlock(ex, item) {
   return block;
 }
 
-/* ---------- Hafta ---------- */
+/* Nasıl yapılır ve dikkat edilecekler listeleri. */
+function guide(ex) {
+  const wrap = el("div", "guide");
+
+  wrap.appendChild(el("h4", null, "Nasıl yapılır"));
+  const steps = el("ol");
+  ex.how.forEach((line) => steps.appendChild(el("li", null, line)));
+  wrap.appendChild(steps);
+
+  wrap.appendChild(el("h4", "is-warn", "Dikkat"));
+  const tips = el("ul");
+  ex.tips.forEach((line) => tips.appendChild(el("li", null, line)));
+  wrap.appendChild(tips);
+
+  return wrap;
+}
+
+function howto(ex) {
+  const box = el("details", "howto");
+  box.appendChild(el("summary", null, "Nasıl yapılır · dikkat edilecekler"));
+  box.appendChild(guide(ex));
+  return box;
+}
+
+function exerciseRow(item, index, eager) {
+  const row = el("li", "row");
+  if (index != null) row.appendChild(el("span", "idx", index + ""));
+  row.appendChild(textBlock(item.ex, item));
+  row.appendChild(shot(item.ex, eager, item));
+  row.appendChild(howto(item.ex));
+  if (item.ex.log !== false) row.appendChild(logField(item.ex));
+  return row;
+}
+
+/* ---------- Döngü görünümü ---------- */
 
 function renderWeek() {
   const grid = document.getElementById("week");
-  const todayIndex = (new Date().getDay() + 6) % 7;
+  const now = todayIndex();
 
   grid.replaceChildren();
 
-  WEEK.forEach((day, i) => {
+  CYCLE.forEach((day, i) => {
     const card = el("a", "day-card");
-    card.href = day.rest ? "#" : "#gun/" + day.slug;
     if (day.plate) card.dataset.plate = day.plate;
+
+    card.appendChild(el("span", "card-day", day.day));
 
     if (day.rest) {
       card.classList.add("is-rest");
-      card.removeAttribute("href");
-      card.appendChild(el("span", "card-day", day.day));
       card.appendChild(el("span", "card-focus", "Dinlenme"));
     } else {
-      card.appendChild(el("span", "card-day", day.day));
+      card.href = "#gun/" + day.slug;
       card.appendChild(el("span", "card-focus", day.focus));
-      card.appendChild(el("span", "card-meta", moveCount(day) + " hareket · " + setCount(day) + " set"));
+      card.appendChild(el("span", "card-meta", dayMeta(day)));
     }
 
-    if (i === todayIndex) {
+    if (i === now) {
       card.classList.add("is-today");
       card.appendChild(el("span", "badge-today", "bugün"));
     }
@@ -91,12 +157,23 @@ function renderWeek() {
     grid.appendChild(card);
   });
 
-  const today = WEEK[todayIndex];
+  const today = CYCLE[now];
   const line = document.getElementById("today-line");
   line.replaceChildren(
     document.createTextNode(today.rest ? "Bugün dinlenme" : today.focus),
-    el("em", null, today.day)
+    el("em", null, "Döngünün " + today.day + "ü")
   );
+
+  const picker = document.getElementById("cycle-pick");
+  picker.replaceChildren();
+  CYCLE.forEach((day, i) => {
+    const button = el("button", null, (i + 1) + "");
+    button.type = "button";
+    button.setAttribute("aria-pressed", i === now ? "true" : "false");
+    button.setAttribute("aria-label", "Bugün " + day.day);
+    button.addEventListener("click", () => setToday(i));
+    picker.appendChild(button);
+  });
 }
 
 /* ---------- Gün ---------- */
@@ -105,61 +182,31 @@ function renderDay(day) {
   document.getElementById("dayhead").dataset.plate = day.plate;
   document.getElementById("day-title").textContent = day.day;
   document.getElementById("day-focus").textContent = day.focus;
-  document.getElementById("day-count").textContent =
-    moveCount(day) + " hareket\n" + setCount(day) + " set";
+  document.getElementById("day-count").textContent = dayMeta(day).replace(" · ", "\n");
+
+  const notes = document.getElementById("notes");
+  notes.replaceChildren();
+  notes.hidden = !day.notes;
+  if (day.notes) {
+    notes.appendChild(el("h3", null, "Bilmen gerekenler"));
+    const list = el("ul");
+    day.notes.forEach((line) => list.appendChild(el("li", null, line)));
+    notes.appendChild(list);
+  }
 
   const list = document.getElementById("work");
   list.replaceChildren();
-
-  let position = 0;
-
-  day.work.forEach((item, i) => {
-    const row = el("li", "row");
-    const eager = i < 2;
-
-    if (item.superset) {
-      row.classList.add("is-ss");
-      row.appendChild(el("span", "idx", ++position + ""));
-
-      const group = el("div", "ss-group");
-      const label = el("p", "ss-label");
-      label.appendChild(el("b", null, item.sets));
-      label.appendChild(document.createTextNode(" · " + item.tag + " · süperset"));
-      group.appendChild(label);
-
-      item.superset.forEach((ex) => {
-        const pair = el("div", "ss-item");
-        const text = el("div", "row-text");
-        text.appendChild(el("h3", null, ex.name));
-        text.appendChild(el("p", "row-tr", ex.tr));
-        pair.appendChild(text);
-        pair.appendChild(shot(ex, eager, { sets: item.sets, tag: item.tag }));
-        pair.appendChild(logField(ex));
-        group.appendChild(pair);
-      });
-
-      row.appendChild(group);
-    } else {
-      row.appendChild(el("span", "idx", ++position + ""));
-      row.appendChild(textBlock(item.ex, item));
-      row.appendChild(shot(item.ex, eager, item));
-      row.appendChild(logField(item.ex));
-    }
-
-    list.appendChild(row);
-  });
+  day.work.forEach((item, i) => list.appendChild(exerciseRow(item, i + 1, i < 2)));
 
   const extra = document.getElementById("finisher");
-  extra.replaceChildren(el("p", null, FINISHER.note));
-  const extraList = el("ol", "work");
-  FINISHER.work.forEach((item) => {
-    const row = el("li", "row");
-    row.appendChild(textBlock(item.ex, item));
-    row.appendChild(shot(item.ex, false, item));
-    row.appendChild(logField(item.ex));
-    extraList.appendChild(row);
-  });
-  extra.appendChild(extraList);
+  extra.replaceChildren();
+  extra.hidden = !day.extra;
+  if (day.extra) {
+    extra.appendChild(el("p", null, day.extra.note));
+    const extraList = el("ol", "work");
+    day.extra.work.forEach((item) => extraList.appendChild(exerciseRow(item, null, false)));
+    extra.appendChild(extraList);
+  }
 }
 
 /* ---------- Büyütme ---------- */
@@ -173,6 +220,7 @@ function openZoom(ex, item) {
   big.removeAttribute("aria-label");
   body.replaceChildren(big, el("h3", null, ex.name), el("p", null, ex.tr));
   if (item) body.appendChild(presentation(item));
+  body.appendChild(guide(ex));
   zoom.showModal();
 }
 
@@ -190,7 +238,7 @@ function route() {
   if (zoom.open) zoom.close();
 
   const slug = (location.hash.match(/^#gun\/(.+)$/) || [])[1];
-  const day = WEEK.find((d) => d.slug === slug && !d.rest);
+  const day = CYCLE.find((d) => d.slug === slug && !d.rest);
 
   document.getElementById("view-week").hidden = !!day;
   document.getElementById("view-day").hidden = !day;
