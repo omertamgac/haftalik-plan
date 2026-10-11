@@ -56,6 +56,68 @@ function setToday(index) {
   renderWeek();
 }
 
+/* ---------- Seans ---------- */
+
+/* Birden çok seansı olan günde son yapılan seans saklanır; ertesi sefer sıradaki önerilir. */
+const SESSION_KEY = "plan.session.v1";
+
+function readSessions() {
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveSession(day, session) {
+  const store = readSessions();
+  store[day.slug] = { key: session.key, at: todayStamp() };
+  try {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(store));
+  } catch {
+    /* Depolama kapaliysa oneri hep ilk seansta kalir. */
+  }
+}
+
+function currentSession(day) {
+  const last = readSessions()[day.slug];
+  const index = last ? day.sessions.findIndex((s) => s.key === last.key) : -1;
+
+  if (index < 0) return day.sessions[0];
+  if (last.at === todayStamp()) return day.sessions[index];
+
+  for (let step = 1; step <= day.sessions.length; step++) {
+    const next = day.sessions[(index + step) % day.sessions.length];
+    if (!next.spare) return next;
+  }
+  return day.sessions[0];
+}
+
+function sessionPicker(day, session) {
+  const box = document.getElementById("session");
+  box.replaceChildren();
+  box.hidden = !session;
+  if (!session) return;
+
+  const picker = el("div", "cycle-pick");
+  day.sessions.forEach((option) => {
+    const button = el("button", null, option.key);
+    button.type = "button";
+    button.setAttribute("aria-pressed", option === session ? "true" : "false");
+    button.setAttribute("aria-label", option.key + " — " + option.name);
+    button.addEventListener("click", () => {
+      saveSession(day, option);
+      renderDay(day);
+    });
+    picker.appendChild(button);
+  });
+
+  const info = el("p", "session-info", session.when);
+  info.appendChild(el("span", "tag", "sürtünme " + session.chafe));
+
+  box.append(picker, info);
+}
+
 /* ---------- Parçalar ---------- */
 
 /* Hareketi gösteren animasyon. Yüklenemezse baş harfler kalır. */
@@ -181,8 +243,16 @@ function renderWeek() {
 function renderDay(day) {
   document.getElementById("dayhead").dataset.plate = day.plate;
   document.getElementById("day-title").textContent = day.day;
-  document.getElementById("day-focus").textContent = day.focus;
-  document.getElementById("day-count").textContent = dayMeta(day).replace(" · ", "\n");
+
+  const session = day.sessions ? currentSession(day) : null;
+  /* Kardiyo gününde açılan öneri o günün seansı sayılır; yoksa sıra hiç ilerlemez. */
+  if (session && CYCLE[todayIndex()] === day) saveSession(day, session);
+  const work = session ? session.work : day.work;
+
+  document.getElementById("day-focus").textContent =
+    session ? day.focus + " · " + session.name : day.focus;
+  document.getElementById("day-count").textContent =
+    session ? session.meta : dayMeta(day).replace(" · ", "\n");
 
   const notes = document.getElementById("notes");
   notes.replaceChildren();
@@ -194,9 +264,11 @@ function renderDay(day) {
     notes.appendChild(list);
   }
 
+  sessionPicker(day, session);
+
   const list = document.getElementById("work");
   list.replaceChildren();
-  day.work.forEach((item, i) => list.appendChild(exerciseRow(item, i + 1, i < 2)));
+  work.forEach((item, i) => list.appendChild(exerciseRow(item, i + 1, i < 2)));
 
   const extra = document.getElementById("finisher");
   extra.replaceChildren();

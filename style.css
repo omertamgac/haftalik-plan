@@ -513,6 +513,23 @@ a { color: inherit; }
   color: var(--iron);
 }
 
+/* Seans secimi */
+
+.session { margin-top: 16px; }
+
+.session .cycle-pick { flex-wrap: wrap; }
+
+.session-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #c9cfd5;
+}
+
 /* ---------- Buyutme ---------- */
 
 #zoom {

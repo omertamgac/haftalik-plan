@@ -188,71 +188,105 @@ const GYM = {
 };
 
 const TREADMILL = "cardio/walking-on-incline-treadmill";
+const BIKE = "cardio/stationary-bike-walk";
 
+/* Aynı makineyi kullanan seanslar aynı görseli paylaşır; `key` kayıtlarını ayrı tutar. */
 const CARDIO = {
-  warmup: {
-    name: "Warm-up walk", tr: "Isınma: düz yürüyüş", img: TREADMILL, log: false,
-    how: [
-      "Koşu bandına çık, eğimi 0-1'de bırak.",
-      "Hızı 4-5 km/s'e getir, rahat adımlarla yürü.",
-      "5 dakika boyunca nefesini ve adımını oturt.",
-    ],
-    tips: [
-      "Bant çalışırken üstüne atlama; kenarlara basıp hız düşükken bin.",
-      "Güvenlik klipsini (varsa) kıyafetine tak.",
-    ],
-  },
-  incline: {
-    name: "Incline treadmill walk", tr: "Eğimli koşu bandı yürüyüşü", img: TREADMILL, unit: "km/s",
-    how: [
-      "Eğimi kademe kademe %5'e çıkar, hızı 4.5-5.5 km/s arasında tut.",
-      "Kollarını doğal şekilde salla, dik yürü.",
-      "1-2. hafta: 20 dk · 3-4. hafta: 25 dk · 5-6. hafta: 30 dk · sonrası: 35 dk.",
-      "35 dakikayı rahat yapınca süreyi değil eğimi artır: %6 → %7 → %8.",
-    ],
-    tips: [
-      "Tutamaklara tutunma; tutunursan eğimin faydası kaybolur.",
-      "Tempo: konuşabileceğin ama şarkı söyleyemeyeceğin bir hız. Nefes nefese kalıyorsan yavaşla.",
-      "Göğüs ağrısı, baş dönmesi ya da mide bulantısı olursa hemen yavaşla ve in.",
-      "Kayıt kutusuna kullandığın hızı, nota eğimi ve süreyi yaz.",
-    ],
-  },
-  cooldown: {
-    name: "Cool-down walk", tr: "Soğuma: yavaş yürüyüş", img: TREADMILL, log: false,
-    how: [
-      "Eğimi 0'a indir, hızı 3.5-4 km/s'e düşür.",
-      "5 dakika yavaş yürü, nabzın sakinleşsin.",
-      "Bandı durdur, tamamen durunca in.",
-    ],
-    tips: [
-      "Birden durma; ani durmak baş dönmesi yapabilir.",
-      "Bitince su iç.",
-    ],
-  },
   bike: {
-    name: "Stationary bike", tr: "Kondisyon bisikleti", img: "cardio/stationary-bike-walk", unit: "seviye",
+    name: "Easy bike", tr: "Rahat tempo bisiklet", img: BIKE, unit: "seviye",
     how: [
       "Seleyi, pedal en alttayken dizin hafif bükük kalacak yüksekliğe ayarla.",
-      "5 dk hafif dirençle ısın.",
-      "Ana bölümde direnci, rahat ama zorlayıcı bir seviyeye getir (bant ile aynı süre).",
-      "Son 5 dk direnci düşürüp yavaş pedal çevir.",
+      "İlk 5 dk en düşük dirençte çevir, ısın.",
+      "Direnci en düşük 2-3 kademeden birine getir, dakikada 60-70 tur çevir.",
+      "Sürenin sonuna kadar aynı rahat tempoda kal.",
     ],
     tips: [
+      "Bacağın yanıyorsa direnç fazla: hızı değil direnci düşür.",
+      "Yüksek sesle tam bir cümle kuramıyorsan yavaşla.",
       "Sele çok alçaksa diz, çok yüksekse kalça zorlanır.",
       "Gidonda kambur durma, sırtın düz kalsın.",
+    ],
+  },
+  walk: {
+    name: "Easy treadmill walk", tr: "Rahat tempo bant yürüyüşü", img: TREADMILL, unit: "km/s",
+    how: [
+      "Kenarlara basıp bant yavaşken üstüne çık, güvenlik klipsini tak.",
+      "Eğimi %0-2, hızı 3.5-4.5 km/s arasına getir.",
+      "Kollarını doğal şekilde salla, dik yürü.",
+      "Son 5 dk eğimi 0'a, hızı 3.5 km/s'e indir; bant tamamen durunca in.",
+    ],
+    tips: [
+      "Nefes nefese kalıyorsan önce eğimi, sonra hızı düşür.",
+      "Tutamaklara tutunma; tutunman gerekiyorsa hız fazla.",
+      "İç bacağın sürtünüyorsa dur, krem sür ya da bisiklete geç.",
+      "30 dakikayı rahat yapınca eğimi bir kademe artır, hızı değil.",
+    ],
+  },
+  film: {
+    name: "Movie ride", tr: "Film eşliğinde bisiklet", img: BIKE, key: "cardio/film", unit: "seviye",
+    how: [
+      "Filmi ya da diziyi aç, telefonu gidona yerleştir.",
+      "İlk 5 dk en düşük dirençte çevir.",
+      "Direnci en düşük 2-3 kademede tut, dakikada 60-70 tur çevir.",
+      "Bittiğinde not kutusuna filmde kaldığın dakikayı yaz (ör. Troy 0:42).",
+    ],
+    tips: [
+      "Filmi takip edemiyorsan direnç fazla; düşür.",
+      "Bu filmi yalnızca bisikletteyken izle, devamı bir sonraki kardiyo gününe kalsın.",
+      "İlk haftalarda 30 dk yeter; her hafta 5-10 dk ekleyerek 60 dk'ya çık.",
+      "Sele acıtıyorsa 15-20 dakikada bir yarım dakika pedalların üstünde doğrul.",
+    ],
+  },
+  ladder: {
+    name: "Incline ladder", tr: "Eğim merdiveni", img: TREADMILL, key: "cardio/ladder", unit: "km/s",
+    how: [
+      "5 dk eğim 0, hız 3.5-4 km/s: ısınma.",
+      "Hızı sabit tut, eğimi 3 dakikada bir değiştir: %1 → %2 → %3 → %4 → %3 → %2 → %1.",
+      "Son 4 dk eğim 0, hız 3.5 km/s: soğuma.",
+    ],
+    tips: [
+      "Hedefin yalnızca bir sonraki 3 dakika; toplam süreyi düşünme.",
+      "%4 fazla geliyorsa %3'te dön, merdiveni kısalt.",
+      "Tutamaklara tutunma.",
+      "Merdiveni rahat bitirince en üst basamağı %5 yap.",
+    ],
+  },
+  interval: {
+    name: "Bike intervals", tr: "Bisiklet interval", img: BIKE, key: "cardio/interval", unit: "seviye",
+    how: [
+      "5 dk en düşük dirençte ısın.",
+      "1 dk direnci bir kademe artır, 2 dk eski dirence dön. Bunu 7 kez tekrarla.",
+      "Son 4 dk en düşük dirençte yavaş çevir.",
+    ],
+    tips: [
+      "Zor dakika sprint değil: yalnızca bir kademe yüksek direnç, aynı pedal hızı.",
+      "2 dakikalık dinlenmede nefesin toparlanmıyorsa turu atla, rahat tempoda devam et.",
+      "Kayıt kutusuna zor dakikalarda kullandığın direnci yaz.",
     ],
   },
   elliptical: {
     name: "Elliptical", tr: "Eliptik bisiklet", img: "cardio/walk-elliptical-cross-trainer", unit: "seviye",
     how: [
       "Pedallara tam bas, tutamakları kavra.",
-      "5 dk düşük dirençle ısın.",
-      "Ana bölümde orta dirençte, bant ile aynı süre çalış.",
-      "Son 5 dk direnci düşürüp yavaşla.",
+      "En düşük 2-3 direnç kademesinden birini seç.",
+      "Rahat, düzenli bir tempoda çalış.",
     ],
     tips: [
       "Topuklarını pedaldan kaldırma.",
       "Dik dur, ağırlığını tutamaklara verme.",
+      "Yüksek sesle tam bir cümle kuramıyorsan direnci düşür.",
+    ],
+  },
+  short: {
+    name: "Short ride", tr: "Kısa bisiklet", img: BIKE, key: "cardio/short", unit: "seviye",
+    how: [
+      "3 dk en düşük dirençte ısın.",
+      "10 dk en düşük 2-3 kademede rahat tempoda çevir.",
+      "2 dk en düşük dirençte yavaşla.",
+    ],
+    tips: [
+      "Bu seans hiç gitmemenin yerine geçer; kısa diye küçümseme.",
+      "Bitince iyi hissediyorsan 5-10 dk daha ekleyebilirsin, zorunda değilsin.",
     ],
   },
 };
@@ -282,25 +316,63 @@ const CYCLE = [
     ],
   },
   {
-    slug: "kardiyo", day: "2. gün", focus: "Kardiyo · Eğimli yürüyüş", plate: "20", meta: "30-45 dk",
+    slug: "kardiyo", day: "2. gün", focus: "Kardiyo", plate: "20", meta: "15-60 dk · 6 seans",
     notes: [
-      "Yeni başlayan için en güvenli kardiyo: eklemleri yormayan, nabzı orta seviyede tutan eğimli yürüyüş.",
-      "Tempo: konuşabileceğin ama şarkı söyleyemeyeceğin bir hız. Nabız saatin varsa (220 − yaşın) × 0.6-0.7 aralığı.",
-      "Süreyi her 2 haftada 5 dk artır; 35 dk'ya ulaşınca süreyi değil eğimi artır.",
-      "Koşu bandı doluysa aşağıdaki bisiklet ya da eliptikten birini aynı süre yap.",
+      "Çok mu ağır? Yüksek sesle tam bir cümle söyle. Yarıda nefes alman gerekiyorsa direnci ya da eğimi düşür.",
+      "Doğru tempoda film izleyebilirsin. Bacağın ya da ciğerin yanıyorsa fazla yükleniyorsun; kolay tempo boşa gitmez, yağ yakımı ve dayanıklılık burada gelişir.",
+      "Sürtünme: dize yakın boyda, bacağı saran tayt ya da spor şortu giy; iç bacağa önceden vazelin ya da sürtünme önleyici stick sür. Cildin hassassa sürtünmesi az bir seans seç.",
+      "İlk haftalarda süre fazla gelirse yarısını yap, her hafta 5 dk ekle. Önce süreyi, 30 dakikayı rahat yapınca direnci ya da eğimi artır.",
+      "10 dakika kuralı: hiç istemiyorsan 10 dakika yap. Hâlâ istemiyorsan bırak, o gün sayılır.",
+      "Göğüste baskı ya da ağrı, baş dönmesi, çarpıntı olursa hemen dur.",
     ],
-    work: [
-      { ex: CARDIO.warmup,   sets: "5 dk",     tag: "Eğim 0-1 · 4-5 km/s" },
-      { ex: CARDIO.incline,  sets: "20-35 dk", tag: "Eğim %5-8 · 4.5-5.5 km/s" },
-      { ex: CARDIO.cooldown, sets: "5 dk",     tag: "Eğim 0 · 3.5-4 km/s" },
+    /* `spare` seanslar sırayla önerilmez, yalnızca elle seçilir. */
+    sessions: [
+      {
+        key: "A", name: "Yarı yarıya", meta: "60 dk", chafe: "orta",
+        when: "Varsayılan seans: yarısı bisiklet, yarısı yürüyüş.",
+        work: [
+          { ex: CARDIO.bike, sets: "30 dk", tag: "Direnç 2-3 · 60-70 tur/dk" },
+          { ex: CARDIO.walk, sets: "30 dk", tag: "Eğim %0-2 · 3.5-4.5 km/s" },
+        ],
+      },
+      {
+        key: "B", name: "Film günü", meta: "30-60 dk", chafe: "az",
+        when: "Film ya da dizi açıp kafa boşaltmak istediğin gün.",
+        work: [
+          { ex: CARDIO.film, sets: "30-60 dk", tag: "Direnç 2-3 · 60-70 tur/dk" },
+        ],
+      },
+      {
+        key: "C", name: "Eğim merdiveni", meta: "30 dk", chafe: "orta",
+        when: "Sıkıldığın gün: eğim 3 dakikada bir değişir.",
+        work: [
+          { ex: CARDIO.ladder, sets: "30 dk", tag: "Eğim %0-4 · 3.5-4.5 km/s" },
+        ],
+      },
+      {
+        key: "D", name: "Bisiklet interval", meta: "30 dk", chafe: "az",
+        when: "Zaman geçmiyorsa: 1 dk biraz zor, 2 dk rahat.",
+        work: [
+          { ex: CARDIO.interval, sets: "30 dk", tag: "7 tur · 1 dk zor / 2 dk rahat" },
+        ],
+      },
+      {
+        key: "E", name: "Makine turu", meta: "45 dk", chafe: "orta",
+        when: "Tek makinede duramadığın gün.",
+        work: [
+          { ex: CARDIO.walk,       sets: "15 dk", tag: "Eğim %0-2 · 3.5-4.5 km/s" },
+          { ex: CARDIO.bike,       sets: "15 dk", tag: "Direnç 2-3" },
+          { ex: CARDIO.elliptical, sets: "15 dk", tag: "Direnç 2-3" },
+        ],
+      },
+      {
+        key: "F", name: "Kısa gün", meta: "15 dk", chafe: "az", spare: true,
+        when: "Hiç istemediğin gün. Gitmemekten iyidir.",
+        work: [
+          { ex: CARDIO.short, sets: "15 dk", tag: "Direnç 1-3" },
+        ],
+      },
     ],
-    extra: {
-      note: "Koşu bandı doluysa — aynı süre, aynı tempo",
-      work: [
-        { ex: CARDIO.bike,       sets: "30-45 dk" },
-        { ex: CARDIO.elliptical, sets: "30-45 dk" },
-      ],
-    },
   },
   { slug: "dinlenme", day: "3. gün", rest: true },
 ];

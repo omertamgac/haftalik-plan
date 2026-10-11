@@ -47,11 +47,13 @@ function syncFields(key, entry) {
 }
 
 function logField(ex) {
-  const entry = readLog()[ex.img] || {};
+  /* Ayni gorseli paylasan hareketler `key` ile ayri kaydedilir. */
+  const key = ex.key || ex.img;
+  const entry = readLog()[key] || {};
   const unit = ex.unit || "kg";
 
   const box = el("div", "log");
-  box.dataset.ex = ex.img;
+  box.dataset.ex = key;
 
   const kg = el("input", "log-kg");
   kg.type = "number";
@@ -79,15 +81,15 @@ function logField(ex) {
     const kgValue = kg.value.trim();
     const noteValue = note.value.trim();
     const store = readLog();
-    const prev = store[ex.img] || {};
+    const prev = store[key] || {};
 
     if ((prev.kg || "") === kgValue && (prev.note || "") === noteValue) return;
 
-    if (!kgValue && !noteValue) delete store[ex.img];
-    else store[ex.img] = { kg: kgValue, note: noteValue, at: todayStamp() };
+    if (!kgValue && !noteValue) delete store[key];
+    else store[key] = { kg: kgValue, note: noteValue, at: todayStamp() };
 
     if (writeLog(store)) {
-      syncFields(ex.img, store[ex.img]);
+      syncFields(key, store[key]);
     } else {
       box.classList.add("is-stuck");
       stamp.textContent = "kaydedilemedi — tarayıcı depolaması kapalı";
