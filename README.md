@@ -1,7 +1,8 @@
 # Antrenman Döngüsü
 
-Kişisel antrenman planı, 3 günlük döngü halinde: **1. gün ağırlık** (tüm vücut,
-makineler), **2. gün kardiyo** (seçenekli seanslar), **3. gün dinlenme**. Gün
+Kişisel antrenman planı, 3 günlük döngü halinde: **1. gün** göğüs, omuz,
+bacak presi + kardiyo, **2. gün** sırt, kol, bacak makineleri + kardiyo,
+**3. gün** dinlenme. Gün
 karelerinden birine dokun, o günün hareketleri set bilgisiyle ve hareketi
 gösteren görselle listelenir. Her hareketin altındaki **Nasıl yapılır · dikkat
 edilecekler** açılınca adım adım yapılışı ve dikkat edilecekleri gösterir.
@@ -17,14 +18,24 @@ tarihi 1. gün sayılır.
 
 ## Kardiyo seansları
 
-Kardiyo günü tek program değil, altı seans: **A** yarı yarıya (30 dk bisiklet +
-30 dk yürüyüş), **B** film günü, **C** eğim merdiveni, **D** bisiklet interval,
-**E** makine turu, **F** kısa gün (15 dk). Gün sayfasının üstündeki A-F
+Her iki ağırlık gününün sonunda, ağırlıktan sonra yapılan altı seçenekli kardiyo seansı var: **A** yarı yarıya (15 dk bisiklet +
+15 dk yürüyüş), **B** film günü, **C** eğim merdiveni, **D** bisiklet interval,
+**E** makine turu, **F** kısa gün (15 dk). Gün sayfasındaki Kardiyo bölümünde A-F
 düğmeleriyle seçilir; her seansta ne zaman uygun olduğu ve iç bacak sürtünmesinin
 az mı orta mı olduğu yazar.
 
-Site her kardiyo gününde sıradaki seansı önerir (F yalnızca elle seçilir). Son
+Site her kardiyoda sıradaki seansı önerir (F yalnızca elle seçilir); sıra iki gün arasında ortaktır, 1. günde A yaptıysan 2. günde B gelir. Son
 yapılan seans tarayıcıda (`plan.session.v1`) saklanır.
+
+### Zamanlayıcı
+
+Film günü dışındaki kardiyo hareketlerinin altında bir zamanlayıcı var.
+**Başlat**'a dokununca bölümleri sırayla sayar (ör. intervalde ısınma, 7 tur
+zor/rahat, soğuma) ve her bölüm değişiminde bip sesi ve titreşimle haber verir.
+Çalışırken ekranı açık tutar; sayfa yenilense de kaldığı yerden devam eder
+(`plan.timer.v1`). Telefonu kilitlersen ya da başka uygulamaya geçersen süre
+doğru saymaya devam eder ama ses gelmez. Bölümler `plan.js` içindeki `TIMERS`
+ve hareket satırındaki `timer` alanından gelir.
 
 Derleme adımı yok — dosyalar olduğu gibi çalışır.
 
@@ -48,7 +59,7 @@ Ya da `index.html` dosyasını doğrudan tarayıcıda aç.
 
 ## Ağırlık kaydı ve notlar
 
-Her hareketin altında bir kg kutusu (kardiyoda hız ya da seviye) (kardiyoda hız ya da seviye) ve kısa bir not alanı var. Yazıp alandan
+Her hareketin altında bir kg kutusu (kardiyoda hız ya da seviye) ve kısa bir not alanı var. Yazıp alandan
 çıkınca kendiliğinden kaydedilir, altta son güncelleme tarihi görünür.
 
 Kayıt **harekete** bağlıdır, güne değil: aynı hareket başka bir günde de
@@ -74,7 +85,7 @@ Her şey `plan.js` içinde:
 - `how` / `tips` — her hareketin "Nasıl yapılır" ve "Dikkat" listeleri.
 - `CARDIO` — kardiyo hareketleri. Aynı görseli paylaşan hareketlere `key`
   verilir ki kayıtları karışmasın.
-- `sessions` — bir günün seçenekli seansları (kardiyo gününde A-F). `spare`
+- `CARDIO_BLOCK` — ağırlık günlerinin sonundaki kardiyo seansları (A-F). `spare`
   olanlar sırayla önerilmez.
 - `CYCLE` — döngünün günleri, sıra, set/tekrar bilgisi ve gün notları.
 

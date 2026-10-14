@@ -1,7 +1,8 @@
-/* 3 günlük döngü: ağırlık → kardiyo → dinlenme.
+/* 3 günlük döngü: ağırlık + kardiyo → ağırlık + kardiyo → dinlenme.
    img: ExerciseGymGifsDB içindeki hareketin yolu (kas/slug) — .gif olarak yüklenir.
    how: nasıl yapılır (sırayla), tips: dikkat edilecekler.
-   unit: kayıt kutusunun birimi (varsayılan kg). log: false ise kayıt kutusu yok. */
+   unit: kayıt kutusunun birimi (varsayılan kg). log: false ise kayıt kutusu yok.
+   timer: satırdaki zamanlayıcının bölümleri (yalnızca kardiyoda). */
 
 /* Döngünün 1. gününün varsayılan tarihi. Sitedeki "Bugün kaçıncı gün?" seçimi bunu ezer. */
 const CYCLE_START = "2026-10-01";
@@ -233,7 +234,7 @@ const CARDIO = {
     tips: [
       "Filmi takip edemiyorsan direnç fazla; düşür.",
       "Bu filmi yalnızca bisikletteyken izle, devamı bir sonraki kardiyo gününe kalsın.",
-      "İlk haftalarda 30 dk yeter; her hafta 5-10 dk ekleyerek 60 dk'ya çık.",
+      "Ağırlıktan sonra 20 dk yeter; her hafta 5 dk ekleyerek 45 dk'ya çık.",
       "Sele acıtıyorsa 15-20 dakikada bir yarım dakika pedalların üstünde doğrul.",
     ],
   },
@@ -291,88 +292,122 @@ const CARDIO = {
   },
 };
 
+/* Zamanlayıcı bölümleri: etiket ve dakika. */
+const part = (label, minutes) => ({ label, sec: minutes * 60 });
+
+const TIMERS = {
+  steady: (minutes) => [part("Isınma · en düşük seviye", 5), part("Rahat tempo", minutes - 5)],
+  ladder: [
+    part("Isınma · eğim 0", 5),
+    ...[1, 2, 3, 4, 3, 2, 1].map((grade) => part("Eğim %" + grade, 3)),
+    part("Soğuma · eğim 0", 4),
+  ],
+  interval: [
+    part("Isınma · en düşük direnç", 5),
+    ...Array.from({ length: 7 }, () => [part("Zor · direnç +1", 1), part("Rahat · eski direnç", 2)]).flat(),
+    part("Soğuma · en düşük direnç", 4),
+  ],
+  short: [part("Isınma · en düşük direnç", 3), part("Rahat tempo", 10), part("Soğuma · en düşük direnç", 2)],
+};
+
+/* Ağırlık günlerinin ortak notları. */
+const WEIGHT_NOTES = [
+  "Önce ağırlık, sonra kardiyo. Başlamadan 5 dk koşu bandında yürüyerek ısın; ilk harekette hafif ağırlıkla 1 ısınma seti yap.",
+  "Ağırlığı, 15 tekrarı düzgün yapabileceğin ama son 2-3 tekrarın zorladığı şekilde seç.",
+  "Setler arasında 60-90 saniye dinlen.",
+  "İki sette de 15 tekrarı rahat yapıyorsan sonraki antrenmanda ağırlığı bir kademe artır.",
+  "Kas yanması normaldir; eklemde batma ya da keskin ağrı olursa o hareketi bırak.",
+];
+
+/* İki ağırlık gününün sonundaki kardiyo. Seans sırası iki gün arasında ortaktır:
+   1. günde A yapıldıysa 2. günde B önerilir. */
+const CARDIO_BLOCK = {
+  slug: "kardiyo",
+  notes: [
+    "Ağırlıktan hemen sonra yapılır. Isınman zaten tamam; ilk dakikaları yine de rahat tempoda geçir.",
+    "Çok mu ağır? Yüksek sesle tam bir cümle söyle. Yarıda nefes alman gerekiyorsa direnci ya da eğimi düşür.",
+    "Doğru tempoda film izleyebilirsin. Bacağın ya da ciğerin yanıyorsa fazla yükleniyorsun; kolay tempo boşa gitmez, yağ yakımı ve dayanıklılık burada gelişir.",
+    "Sürtünme: dize yakın boyda, bacağı saran tayt ya da spor şortu giy; iç bacağa önceden vazelin ya da sürtünme önleyici stick sür. Cildin hassassa sürtünmesi az bir seans seç.",
+    "Ağırlıktan sonra bitkinsen F'yi (15 dk) seç; o gün yine sayılır. 30 dakikayı rahat yapınca önce süreyi, sonra direnci ya da eğimi artır.",
+    "Göğüste baskı ya da ağrı, baş dönmesi, çarpıntı olursa hemen dur.",
+  ],
+  /* `spare` seanslar sırayla önerilmez, yalnızca elle seçilir. */
+  sessions: [
+    {
+      key: "A", name: "Yarı yarıya", meta: "30 dk", chafe: "orta",
+      when: "Varsayılan seans: yarısı bisiklet, yarısı yürüyüş.",
+      work: [
+        { ex: CARDIO.bike, sets: "15 dk", tag: "Direnç 2-3 · 60-70 tur/dk", timer: TIMERS.steady(15) },
+        { ex: CARDIO.walk, sets: "15 dk", tag: "Eğim %0-2 · 3.5-4.5 km/s", timer: [part("Rahat tempo", 12), part("Soğuma · eğim 0", 3)] },
+      ],
+    },
+    {
+      key: "B", name: "Film günü", meta: "20-45 dk", chafe: "az",
+      when: "Film ya da dizi açıp kafa boşaltmak istediğin gün.",
+      work: [
+        { ex: CARDIO.film, sets: "20-45 dk", tag: "Direnç 2-3 · 60-70 tur/dk" },
+      ],
+    },
+    {
+      key: "C", name: "Eğim merdiveni", meta: "30 dk", chafe: "orta",
+      when: "Sıkıldığın gün: eğim 3 dakikada bir değişir.",
+      work: [
+        { ex: CARDIO.ladder, sets: "30 dk", tag: "Eğim %0-4 · 3.5-4.5 km/s", timer: TIMERS.ladder },
+      ],
+    },
+    {
+      key: "D", name: "Bisiklet interval", meta: "30 dk", chafe: "az",
+      when: "Zaman geçmiyorsa: 1 dk biraz zor, 2 dk rahat.",
+      work: [
+        { ex: CARDIO.interval, sets: "30 dk", tag: "7 tur · 1 dk zor / 2 dk rahat", timer: TIMERS.interval },
+      ],
+    },
+    {
+      key: "E", name: "Makine turu", meta: "30 dk", chafe: "orta",
+      when: "Tek makinede duramadığın gün.",
+      work: [
+        { ex: CARDIO.walk,       sets: "10 dk", tag: "Eğim %0-2 · 3.5-4.5 km/s", timer: [part("Yürüyüş", 10)] },
+        { ex: CARDIO.bike,       sets: "10 dk", tag: "Direnç 2-3", timer: [part("Bisiklet", 10)] },
+        { ex: CARDIO.elliptical, sets: "10 dk", tag: "Direnç 2-3", timer: [part("Eliptik", 10)] },
+      ],
+    },
+    {
+      key: "F", name: "Kısa gün", meta: "15 dk", chafe: "az", spare: true,
+      when: "Ağırlıktan sonra bitkin olduğun gün. Hiç yapmamaktan iyidir.",
+      work: [
+        { ex: CARDIO.short, sets: "15 dk", tag: "Direnç 1-3", timer: TIMERS.short },
+      ],
+    },
+  ],
+};
+
+/* Ağırlık iki güne bölünür: 1. gün itiş (göğüs, omuz), 2. gün çekiş (sırt) ve kollar.
+   Bacak makineleri iki güne dağıtılır; her gün ağırlığın ardından kardiyo gelir. */
 const CYCLE = [
   {
-    slug: "agirlik", day: "1. gün", focus: "Ağırlık · Tüm vücut", plate: "25",
-    notes: [
-      "Başlamadan 5 dk koşu bandında yürüyerek ısın. İlk harekette hafif ağırlıkla 1 ısınma seti yap.",
-      "Ağırlığı, 15 tekrarı düzgün yapabileceğin ama son 2-3 tekrarın zorladığı şekilde seç.",
-      "Setler arasında 60-90 saniye dinlen.",
-      "İki sette de 15 tekrarı rahat yapıyorsan sonraki antrenmanda ağırlığı bir kademe artır.",
-      "Kas yanması normaldir; eklemde batma ya da keskin ağrı olursa o hareketi bırak.",
-    ],
+    slug: "agirlik-1", day: "1. gün", focus: "Göğüs · omuz · bacak", plate: "25",
+    notes: WEIGHT_NOTES,
     work: [
       { ex: GYM.chestPress,    sets: "2 × 15" },
       { ex: GYM.chestFly,      sets: "2 × 15" },
       { ex: GYM.shoulderPress, sets: "2 × 15" },
       { ex: GYM.lateralRaise,  sets: "2 × 15" },
-      { ex: GYM.latPulldown,   sets: "2 × 15" },
-      { ex: GYM.seatedRow,     sets: "2 × 15" },
-      { ex: GYM.cableCurl,     sets: "2 × 15" },
-      { ex: GYM.pushdown,      sets: "2 × 15" },
       { ex: GYM.legPress,      sets: "2 × 15" },
-      { ex: GYM.legExt,        sets: "2 × 15" },
-      { ex: GYM.legCurl,       sets: "2 × 15" },
     ],
+    cardio: CARDIO_BLOCK,
   },
   {
-    slug: "kardiyo", day: "2. gün", focus: "Kardiyo", plate: "20", meta: "15-60 dk · 6 seans",
-    notes: [
-      "Çok mu ağır? Yüksek sesle tam bir cümle söyle. Yarıda nefes alman gerekiyorsa direnci ya da eğimi düşür.",
-      "Doğru tempoda film izleyebilirsin. Bacağın ya da ciğerin yanıyorsa fazla yükleniyorsun; kolay tempo boşa gitmez, yağ yakımı ve dayanıklılık burada gelişir.",
-      "Sürtünme: dize yakın boyda, bacağı saran tayt ya da spor şortu giy; iç bacağa önceden vazelin ya da sürtünme önleyici stick sür. Cildin hassassa sürtünmesi az bir seans seç.",
-      "İlk haftalarda süre fazla gelirse yarısını yap, her hafta 5 dk ekle. Önce süreyi, 30 dakikayı rahat yapınca direnci ya da eğimi artır.",
-      "10 dakika kuralı: hiç istemiyorsan 10 dakika yap. Hâlâ istemiyorsan bırak, o gün sayılır.",
-      "Göğüste baskı ya da ağrı, baş dönmesi, çarpıntı olursa hemen dur.",
+    slug: "agirlik-2", day: "2. gün", focus: "Sırt · kol · bacak", plate: "20",
+    notes: WEIGHT_NOTES,
+    work: [
+      { ex: GYM.latPulldown, sets: "2 × 15" },
+      { ex: GYM.seatedRow,   sets: "2 × 15" },
+      { ex: GYM.cableCurl,   sets: "2 × 15" },
+      { ex: GYM.pushdown,    sets: "2 × 15" },
+      { ex: GYM.legExt,      sets: "2 × 15" },
+      { ex: GYM.legCurl,     sets: "2 × 15" },
     ],
-    /* `spare` seanslar sırayla önerilmez, yalnızca elle seçilir. */
-    sessions: [
-      {
-        key: "A", name: "Yarı yarıya", meta: "60 dk", chafe: "orta",
-        when: "Varsayılan seans: yarısı bisiklet, yarısı yürüyüş.",
-        work: [
-          { ex: CARDIO.bike, sets: "30 dk", tag: "Direnç 2-3 · 60-70 tur/dk" },
-          { ex: CARDIO.walk, sets: "30 dk", tag: "Eğim %0-2 · 3.5-4.5 km/s" },
-        ],
-      },
-      {
-        key: "B", name: "Film günü", meta: "30-60 dk", chafe: "az",
-        when: "Film ya da dizi açıp kafa boşaltmak istediğin gün.",
-        work: [
-          { ex: CARDIO.film, sets: "30-60 dk", tag: "Direnç 2-3 · 60-70 tur/dk" },
-        ],
-      },
-      {
-        key: "C", name: "Eğim merdiveni", meta: "30 dk", chafe: "orta",
-        when: "Sıkıldığın gün: eğim 3 dakikada bir değişir.",
-        work: [
-          { ex: CARDIO.ladder, sets: "30 dk", tag: "Eğim %0-4 · 3.5-4.5 km/s" },
-        ],
-      },
-      {
-        key: "D", name: "Bisiklet interval", meta: "30 dk", chafe: "az",
-        when: "Zaman geçmiyorsa: 1 dk biraz zor, 2 dk rahat.",
-        work: [
-          { ex: CARDIO.interval, sets: "30 dk", tag: "7 tur · 1 dk zor / 2 dk rahat" },
-        ],
-      },
-      {
-        key: "E", name: "Makine turu", meta: "45 dk", chafe: "orta",
-        when: "Tek makinede duramadığın gün.",
-        work: [
-          { ex: CARDIO.walk,       sets: "15 dk", tag: "Eğim %0-2 · 3.5-4.5 km/s" },
-          { ex: CARDIO.bike,       sets: "15 dk", tag: "Direnç 2-3" },
-          { ex: CARDIO.elliptical, sets: "15 dk", tag: "Direnç 2-3" },
-        ],
-      },
-      {
-        key: "F", name: "Kısa gün", meta: "15 dk", chafe: "az", spare: true,
-        when: "Hiç istemediğin gün. Gitmemekten iyidir.",
-        work: [
-          { ex: CARDIO.short, sets: "15 dk", tag: "Direnç 1-3" },
-        ],
-      },
-    ],
+    cardio: CARDIO_BLOCK,
   },
   { slug: "dinlenme", day: "3. gün", rest: true },
 ];

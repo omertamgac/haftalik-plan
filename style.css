@@ -513,6 +513,36 @@ a { color: inherit; }
   color: var(--iron);
 }
 
+/* Kardiyo bolumu */
+
+.cardio {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 2px solid var(--plate, var(--line));
+}
+
+.cardio-head {
+  margin: 0;
+  font-size: 20px;
+  font-variation-settings: "wdth" 86, "wght" 700;
+}
+
+.cardio-head span {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--dim);
+  font-variation-settings: "wdth" 100, "wght" 500;
+}
+
+.cardio-notes summary {
+  font-size: 13px;
+  color: var(--dim);
+  cursor: pointer;
+}
+
+.cardio-notes[open] summary { margin-bottom: 8px; }
+
 /* Seans secimi */
 
 .session { margin-top: 16px; }
@@ -659,6 +689,65 @@ a { color: inherit; }
 }
 
 .log.is-stuck .log-stamp { color: #e8a6a0; }
+
+/* ---------- Zamanlayici ---------- */
+
+.row > .timer { grid-column: 2 / -1; }
+
+.timer {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--slab);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.timer.is-running { border-color: var(--plate, var(--dim)); }
+
+.timer p { margin: 0; }
+
+.timer-phase {
+  font-size: 14px;
+  font-variation-settings: "wdth" 100, "wght" 600;
+}
+
+.timer-clock {
+  font-size: 44px;
+  line-height: 1.1;
+  font-variation-settings: "wdth" 108, "wght" 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-next {
+  font-size: 12px;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.timer-buttons button {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--dim);
+  font: inherit;
+  font-size: 14px;
+  font-variation-settings: "wdth" 100, "wght" 600;
+  cursor: pointer;
+}
+
+.timer-buttons .timer-main {
+  background: var(--chalk);
+  border-color: var(--chalk);
+  color: var(--iron);
+}
 
 /* ---------- Genis ekran ---------- */
 

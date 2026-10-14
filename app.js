@@ -18,6 +18,8 @@ const setCount = (day) =>
 const dayMeta = (day) =>
   day.meta || day.work.length + " hareket · " + setCount(day) + " set";
 
+const cardMeta = (day) => dayMeta(day) + (day.cardio ? " + kardiyo" : "");
+
 const initials = (name) =>
   name.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
@@ -58,7 +60,8 @@ function setToday(index) {
 
 /* ---------- Seans ---------- */
 
-/* Birden çok seansı olan günde son yapılan seans saklanır; ertesi sefer sıradaki önerilir. */
+/* Kardiyo bloğunda son yapılan seans saklanır; sonraki kardiyoda sıradaki önerilir.
+   Kayıt bloğun slug'ına bağlı, bu yüzden iki ağırlık günü aynı sırayı paylaşır. */
 const SESSION_KEY = "plan.session.v1";
 
 function readSessions() {
@@ -93,21 +96,19 @@ function currentSession(day) {
   return day.sessions[0];
 }
 
-function sessionPicker(day, session) {
+function sessionPicker(block, session, onPick) {
   const box = document.getElementById("session");
   box.replaceChildren();
-  box.hidden = !session;
-  if (!session) return;
 
   const picker = el("div", "cycle-pick");
-  day.sessions.forEach((option) => {
+  block.sessions.forEach((option) => {
     const button = el("button", null, option.key);
     button.type = "button";
     button.setAttribute("aria-pressed", option === session ? "true" : "false");
     button.setAttribute("aria-label", option.key + " — " + option.name);
     button.addEventListener("click", () => {
-      saveSession(day, option);
-      renderDay(day);
+      saveSession(block, option);
+      onPick();
     });
     picker.appendChild(button);
   });
@@ -184,6 +185,7 @@ function exerciseRow(item, index, eager) {
   row.appendChild(textBlock(item.ex, item));
   row.appendChild(shot(item.ex, eager, item));
   row.appendChild(howto(item.ex));
+  if (item.timer) row.appendChild(timerBox(item));
   if (item.ex.log !== false) row.appendChild(logField(item.ex));
   return row;
 }
@@ -208,7 +210,7 @@ function renderWeek() {
     } else {
       card.href = "#gun/" + day.slug;
       card.appendChild(el("span", "card-focus", day.focus));
-      card.appendChild(el("span", "card-meta", dayMeta(day)));
+      card.appendChild(el("span", "card-meta", cardMeta(day)));
     }
 
     if (i === now) {
@@ -244,15 +246,8 @@ function renderDay(day) {
   document.getElementById("dayhead").dataset.plate = day.plate;
   document.getElementById("day-title").textContent = day.day;
 
-  const session = day.sessions ? currentSession(day) : null;
-  /* Kardiyo gününde açılan öneri o günün seansı sayılır; yoksa sıra hiç ilerlemez. */
-  if (session && CYCLE[todayIndex()] === day) saveSession(day, session);
-  const work = session ? session.work : day.work;
-
-  document.getElementById("day-focus").textContent =
-    session ? day.focus + " · " + session.name : day.focus;
-  document.getElementById("day-count").textContent =
-    session ? session.meta : dayMeta(day).replace(" · ", "\n");
+  document.getElementById("day-focus").textContent = day.focus;
+  document.getElementById("day-count").textContent = cardMeta(day).replace(" · ", "\n");
 
   const notes = document.getElementById("notes");
   notes.replaceChildren();
@@ -264,11 +259,11 @@ function renderDay(day) {
     notes.appendChild(list);
   }
 
-  sessionPicker(day, session);
-
   const list = document.getElementById("work");
   list.replaceChildren();
-  work.forEach((item, i) => list.appendChild(exerciseRow(item, i + 1, i < 2)));
+  day.work.forEach((item, i) => list.appendChild(exerciseRow(item, i + 1, i < 2)));
+
+  renderCardio(day);
 
   const extra = document.getElementById("finisher");
   extra.replaceChildren();
@@ -279,6 +274,34 @@ function renderDay(day) {
     day.extra.work.forEach((item) => extraList.appendChild(exerciseRow(item, null, false)));
     extra.appendChild(extraList);
   }
+}
+
+/* Ağırlığın ardından gelen kardiyo: notlar kapalı gelir, seans seçilince yalnızca bu bölüm yenilenir. */
+function renderCardio(day) {
+  const box = document.getElementById("cardio");
+  const block = day.cardio;
+  box.hidden = !block;
+  if (!block) return;
+
+  const session = currentSession(block);
+  /* Bugünün sayfasında açılan öneri o günün seansı sayılır; yoksa sıra hiç ilerlemez. */
+  if (CYCLE[todayIndex()] === day) saveSession(block, session);
+
+  document.getElementById("cardio-meta").textContent = session.name + " · " + session.meta;
+
+  const notes = document.getElementById("cardio-notes");
+  const wasOpen = notes.open;
+  notes.replaceChildren(el("summary", null, "Kardiyo hakkında bilmen gerekenler"));
+  const lines = el("ul");
+  block.notes.forEach((line) => lines.appendChild(el("li", null, line)));
+  notes.appendChild(lines);
+  notes.open = wasOpen;
+
+  sessionPicker(block, session, () => renderCardio(day));
+
+  const list = document.getElementById("cardio-work");
+  list.replaceChildren();
+  session.work.forEach((item, i) => list.appendChild(exerciseRow(item, i + 1, false)));
 }
 
 /* ---------- Büyütme ---------- */
